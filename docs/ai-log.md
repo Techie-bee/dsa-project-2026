@@ -18,3 +18,10 @@
 - **What I asked:** Implement Build 2 event lifecycle, search and filters, booking criteria, and automated tests while preserving the existing demo.
 - **What came back:** Added event summaries and lifecycle helpers, Build 2 tests, and an `npm test` command.
 - **What was wrong (or "nothing"):** The active checkout had an earlier event shape (`name`/`date`) and no Build 2 documentation or tests. The implementation supports both the existing demo shape and the Build 2 `title`/`city`/`venue`/`startsAt` shape. I initially forgot to add the S04's acceptance criteria before feeding the prompt to AI but I later did and prompted it again. S04's missing  criteria were represented as three tests: publishing requires tiers, published events are public, and unpublishing hides an event without deleting its tiers.
+
+## Build 3
+
+### Prompt 1: Build 3 architecture, state machine, and HTTP server
+- **What I asked:** Add the layered architecture diagrams, booking state machine, minimal HTTP router and static server, server configuration, startup script, and tests without changing working behavior.
+- **What came back:** Added the requested Build 3 modules, documentation, static entry page, and tests while keeping the existing Build 1 demo and Build 2 domain tests unchanged.
+- **What was wrong (or "nothing"):** The active checkout had no HTTP server, test coverage for these features, or public directory. Added a public index page and tests for malformed JSON, API 404 responses, static traversal protection, router matching, and every booking-state transition.

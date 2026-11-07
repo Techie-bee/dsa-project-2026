@@ -4,6 +4,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DomainError } from "../domain/errors.js";
 import { createRouter } from "./router.js";
+import { registerApiRoutes } from "./apiRoutes.js";
+import { createMemoryRepository } from "../repositories/memory.js";
+import { createEventService } from "../services/eventService.js";
+import { createBookingService } from "../services/bookingService.js";
+import { createMockPaymentGateway } from "../lib/mockPaymentGateway.js";
 
 const DEFAULT_PUBLIC_DIR = fileURLToPath(new URL("../../public/", import.meta.url));
 const MIME_TYPES = new Map([
@@ -39,7 +44,9 @@ function statusFor(error) {
     return 400;
   }
   if (error.code === "NOT_FOUND") return 404;
+  if (error.code === "FORBIDDEN") return 403;
   if (error.code === "INVALID_TRANSITION") return 409;
+  if (error.code === "PAYMENT_DECLINED") return 402;
   return 500;
 }
 
@@ -122,10 +129,18 @@ async function serveStatic(request, response, pathname, publicDir) {
   }
 }
 
-export function createApp({ publicDir = DEFAULT_PUBLIC_DIR } = {}) {
+export function createApp({
+  publicDir = DEFAULT_PUBLIC_DIR,
+  repository = createMemoryRepository(),
+  paymentGateway = createMockPaymentGateway(),
+} = {}) {
   const router = createRouter();
   router.add("GET", "/health", ({ response }) => {
     sendJson(response, 200, { status: "ok" });
+  });
+  registerApiRoutes(router, {
+    eventService: createEventService(repository),
+    bookingService: createBookingService(repository, paymentGateway),
   });
 
   return async function app(request, response) {
@@ -137,16 +152,25 @@ export function createApp({ publicDir = DEFAULT_PUBLIC_DIR } = {}) {
         request.method !== "HEAD" &&
         request.headers["content-type"]?.split(";")[0].trim().toLowerCase() ===
           "application/json";
-      if (hasJsonBody) await readJsonBody(request);
+      const body = hasJsonBody ? await readJsonBody(request) : undefined;
 
       const route = router.match(request.method, url.pathname);
       if (route) {
-        await route.handler({
+        const routeResult = await route.handler({
           request,
           response,
           params: route.params,
           url,
+        body,
         });
+        if (routeResult && !response.headersSent) {
+        sendJson(
+          response,
+          routeResult.statusCode ?? 200,
+          routeResult.body,
+          headOnly
+        );
+        }
         return;
       }
 

@@ -11,3 +11,10 @@
 - **What I asked:** Help me test the event ticketing demo and compare booking lookups using `Array.find()` and `Map.get()`.
 - **What came back:** The demo showed successful bookings, a rejected booking with the `SOLD_OUT` error, booking lookup by reference, cancellation, and the next person in the waitlist. The benchmark compared 500 lookups among 100,000 bookings and showed that `Map.get()` was much faster in the test run.
 - **What was wrong (or "nothing"):** Nothing was wrong with the benchmark execution. It completed 500 lookups across 100,000 bookings. The measured times varied between runs, but Map.get() was much faster than Array.find() in both runs.
+
+## Build 2
+
+### Prompt 1: Build 2 domain, search, sorting, and tests
+- **What I asked:** Implement Build 2 event lifecycle, search and filters, booking criteria, and automated tests while preserving the existing demo.
+- **What came back:** Added event summaries and lifecycle helpers, Build 2 tests, and an `npm test` command.
+- **What was wrong (or "nothing"):** The active checkout had an earlier event shape (`name`/`date`) and no Build 2 documentation or tests. The implementation supports both the existing demo shape and the Build 2 `title`/`city`/`venue`/`startsAt` shape. I initially forgot to add the S04's acceptance criteria before feeding the prompt to AI but I later did and prompted it again. S04's missing  criteria were represented as three tests: publishing requires tiers, published events are public, and unpublishing hides an event without deleting its tiers.

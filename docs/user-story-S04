@@ -1,0 +1,9 @@
+### S04: As an organizer, I want to publish and unpublish an event, so that I control when it goes public
+
+**Acceptance Criteria**
+
+1. Given an organizer has created an event and added at least one ticket tier, when the organizer publishes the event, then the event's status changes from `draft` to `published`, and it becomes visible in the public event list.
+
+2. Given an event is currently published, when the organizer unpublishes it, then its status changes from `published` to `draft`, and it is no longer visible in the public event list.
+
+3. Given an organizer has created an event but has not added any ticket tiers, when the organizer tries to publish it, then the system returns an `INVALID_STATE` error, and the event remains a draft.

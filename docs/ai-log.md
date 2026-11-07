@@ -25,3 +25,10 @@
 - **What I asked:** Add the layered architecture diagrams, booking state machine, minimal HTTP router and static server, server configuration, startup script, and tests without changing working behavior.
 - **What came back:** Added the requested Build 3 modules, documentation, static entry page, and tests while keeping the existing Build 1 demo and Build 2 domain tests unchanged.
 - **What was wrong (or "nothing"):** The active checkout had no HTTP server, test coverage for these features, or public directory. Added a public index page and tests for malformed JSON, API 404 responses, static traversal protection, router matching, and every booking-state transition.
+
+## Build 4
+
+### Prompt 1: Build 4 in-memory REST API
+- **What I asked:** Add the in-memory repository, injected services, mock payment gateway, REST endpoints, API examples, and live HTTP tests while following the documented layers.
+- **What came back:** Added async repository methods, event and booking services, injected API routes, payment handling, and end-to-end HTTP tests for the create-to-pay flow and cancellation.
+- **What was wrong (or "nothing"):** The existing server parsed JSON but discarded the parsed body, so I updated the app to pass request data into route handlers and serialize their results while preserving the existing `/health`, static-file, and error behavior. Payment tests verify that card details are not passed to the gateway and that declined payments remain retryable.

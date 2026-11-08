@@ -32,3 +32,10 @@
 - **What I asked:** Add the in-memory repository, injected services, mock payment gateway, REST endpoints, API examples, and live HTTP tests while following the documented layers.
 - **What came back:** Added async repository methods, event and booking services, injected API routes, payment handling, and end-to-end HTTP tests for the create-to-pay flow and cancellation.
 - **What was wrong (or "nothing"):** The existing server parsed JSON but discarded the parsed body, so I updated the app to pass request data into route handlers and serialize their results while preserving the existing `/health`, static-file, and error behavior. Payment tests verify that card details are not passed to the gateway and that declined payments remain retryable.
+
+## Build 5
+
+### Prompt 1: Build 5 SQLite persistence and oversell reproduction
+- **What I asked:** Replace the running server's in-memory storage with SQLite, add the constrained schema and seeded sample data, and reproduce 50 concurrent attempts to book one remaining seat without fixing the race yet.
+- **What came back:** Added the SQLite connection and repository, persistence-backed server startup, an idempotent seed script, and the oversell demonstration.
+- **What was wrong (or "nothing"):** The event service previously relied on mutating an event object in place, which a database-backed repository cannot persist automatically. I added `updateEvent` to both repository implementations and used it when publishing so the published status survives a restart. The oversell remains intentionally unfixed: the demo reports all successful stale reads while the stored sold count stays within the database constraint.

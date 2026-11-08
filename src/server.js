@@ -3,9 +3,12 @@ import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { config } from "./config.js";
 import { createApp } from "./http/app.js";
+import { createSqliteRepository } from "./repositories/sqlite.js";
 
 export function startServer(port = config.port) {
-  const server = createServer(createApp());
+  const repository = createSqliteRepository();
+  const server = createServer(createApp({ repository }));
+  server.once("close", () => repository.close());
   server.listen(port, () => {
     console.log(`Event ticketing server listening on port ${port}`);
   });

@@ -13,6 +13,12 @@ export class MemoryRepository {
     return this.#events.get(id);
   }
 
+  async updateEvent(event) {
+    if (!this.#events.has(event.id)) return undefined;
+    this.#events.set(event.id, event);
+    return event;
+  }
+
   async listEvents() {
     return [...this.#events.values()];
   }

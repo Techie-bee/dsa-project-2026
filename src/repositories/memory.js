@@ -42,6 +42,14 @@ export class MemoryRepository {
     return tier;
   }
 
+  async reserveSeats(id, quantity) {
+    const tier = this.#tiers.get(id);
+    if (!tier || tier.sold + quantity > tier.capacity) return undefined;
+    tier.sold += quantity;
+    tier.available = tier.capacity - tier.sold;
+    return tier;
+  }
+
   async createBooking(booking) {
     this.#bookings.set(booking.id, booking);
     this.#bookingsByReference.set(booking.reference, booking);

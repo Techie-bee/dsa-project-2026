@@ -39,3 +39,8 @@
 - **What I asked:** Replace the running server's in-memory storage with SQLite, add the constrained schema and seeded sample data, and reproduce 50 concurrent attempts to book one remaining seat without fixing the race yet.
 - **What came back:** Added the SQLite connection and repository, persistence-backed server startup, an idempotent seed script, and the oversell demonstration.
 - **What was wrong (or "nothing"):** The event service previously relied on mutating an event object in place, which a database-backed repository cannot persist automatically. I added `updateEvent` to both repository implementations and used it when publishing so the published status survives a restart. The oversell remains intentionally unfixed: the demo reports all successful stale reads while the stored sold count stays within the database constraint.
+
+### Prompt 2: Fix the oversell race atomically
+- **What I asked:** Reserve tier capacity with one conditional SQL update, and prove that only one of 50 concurrent booking attempts can reserve the last seat.
+- **What came back:** Added a conditional SQLite reservation operation, used its changed-row result to reject losing requests as `SOLD_OUT`, and added the 50-request regression test.
+- **What was wrong (or "nothing"):** The original booking flow read available capacity and later wrote a changed tier row, so concurrent requests all made their decision from the same stale value. I replaced that with the conditional database update and verified the expected 1-success/49-sold-out result.

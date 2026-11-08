@@ -114,7 +114,7 @@ export function createEventService(repository) {
         );
       }
       event.status = "published";
-      return event;
+      return repository.updateEvent(event);
     },
 
     async searchEvents(criteria = {}, sortBy = "date") {

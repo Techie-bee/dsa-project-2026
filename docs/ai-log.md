@@ -44,3 +44,25 @@
 - **What I asked:** Reserve tier capacity with one conditional SQL update, and prove that only one of 50 concurrent booking attempts can reserve the last seat.
 - **What came back:** Added a conditional SQLite reservation operation, used its changed-row result to reject losing requests as `SOLD_OUT`, and added the 50-request regression test.
 - **What was wrong (or "nothing"):** The original booking flow read available capacity and later wrote a changed tier row, so concurrent requests all made their decision from the same stale value. I replaced that with the conditional database update and verified the expected 1-success/49-sold-out result.
+
+## Build 6
+
+### Prompt 1: Build 6 frontend on mock data
+- **What I asked:** Build the two public pages, shared DOM helper and formatter, mock API module, mock event data, filters, tier selection, checkout countdown, and mock payment retry flow in plain HTML, CSS and browser JavaScript.
+- **What came back:** Added a responsive event browser and event checkout, a mock data/API layer, sold-out and quantity-limit handling, a 10-minute hold countdown, and declined-payment retry behavior.
+- **What was wrong (or "nothing"):** Nothing remained wrong after implementation review. I confirmed that data is not inserted with `innerHTML`, pages do not call `fetch`, quantities are capped by both 10 and available seats, and the existing 61-test suite still passes.
+
+### Prompt 2: Review Build 6 requirements
+- **What I asked:** Recheck the Build 6 implementation against the requirements and identify state or accessibility defects.
+- **What came back:** A review found two UI-state issues: the city menu could lose cities as the filtered result set changed, and tier status did not update after a hold. I kept the city choices stable, synchronized sold-out/seat labels and disabled states after booking, and prevented another hold while checkout was active.
+- **What was wrong (or "nothing"):** The initial implementation mostly met the requirements, but it needed those two state corrections and a more direct whole-naira price formatter.
+
+### Prompt 3: Anchor countdown to the booking hold
+- **What I asked:** Add the hold-expiry timestamp to the mock booking response and make checkout count down to that value.
+- **What came back:** `createBooking` now returns `holdExpiresAt` ten minutes after `createdAt`, and checkout parses and counts down to that returned deadline.
+- **What was wrong (or "nothing"):** Previously the page started a fresh ten-minute countdown when it rendered checkout, so its deadline was not tied to when the booking was actually created.
+
+### Prompt 4: Expire bookings and release held seats
+- **What I asked:** Expire a pending mock booking at its hold deadline, release its seats for new bookings, and prevent payment after expiry.
+- **What came back:** The expiry API transitions pending bookings to `expired` and restores tier availability once; the checkout timer invokes it at the deadline, and payment also enforces expiration. Added a regression test for pre-deadline state, release, idempotency, and rejected late payment.
+- **What was wrong (or "nothing"):** The previous countdown only disabled the checkout button; it left the booking pending and its seats reserved in mock data.

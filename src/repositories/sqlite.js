@@ -157,6 +157,18 @@ export class SqliteRepository {
     return result.changes ? tier : undefined;
   }
 
+  async reserveSeats(id, quantity) {
+    const result = this.#database
+      .prepare(
+        `UPDATE ticket_tiers
+         SET sold = sold + ?
+         WHERE id = ? AND sold + ? <= capacity`
+      )
+      .run(quantity, id, quantity);
+    if (result.changes === 0) return undefined;
+    return this.getTier(id);
+  }
+
   async createBooking(booking) {
     this.#ensureUser(booking.userId);
     this.#database

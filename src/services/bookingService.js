@@ -41,9 +41,6 @@ export function createBookingService(repository, paymentGateway) {
       if (event.status !== "published") {
         throw new DomainError("Event is not available for booking", "INVALID_STATE");
       }
-      if (tier.available < quantity) {
-        throw new DomainError("Not enough tickets available", "SOLD_OUT");
-      }
       const amountCents = tier.priceCents * quantity;
       if (!Number.isSafeInteger(amountCents)) {
         throw new DomainError("Booking total exceeds the supported range", "VALIDATION");
@@ -66,9 +63,10 @@ export function createBookingService(repository, paymentGateway) {
         createdAt: new Date().toISOString(),
       };
 
-      tier.available -= quantity;
-      tier.sold += quantity;
-      await repository.updateTier(tier);
+      const reservedTier = await repository.reserveSeats(tier.id, quantity);
+      if (!reservedTier) {
+        throw new DomainError("Not enough tickets available", "SOLD_OUT");
+      }
       return repository.createBooking(booking);
     },
 

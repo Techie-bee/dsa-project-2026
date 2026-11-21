@@ -76,7 +76,7 @@ function renderCheckout() {
     type: "text",
     inputmode: "numeric",
     autocomplete: "off",
-    placeholder: "4242 4242 4242 4242",
+    placeholder: "4242 3232 4242 5252",
   });
   const decline = el("input", { id: "decline-payment", name: "decline", type: "checkbox" });
   const paymentError = el("p", { id: "payment-error", className: "error", role: "alert" });
